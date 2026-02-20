@@ -8,7 +8,7 @@ import json
 import cloudflare
 from fastmcp import FastMCP
 
-from .cf_handler import CloudflareHandler
+from .cf_handler import CloudflareHandler, CreateDnsRecordParams, UpdateDnsRecordParams
 
 mcp = FastMCP("Cloudflare MCP Server")
 
@@ -126,7 +126,14 @@ async def create_dns_record(
     """
     handler = CloudflareHandler()
     try:
-        data = await handler.create_dns_record(zone_id, record_type, name, content, ttl, proxied)
+        params = CreateDnsRecordParams(
+            record_type=record_type,
+            name=name,
+            content=content,
+            ttl=ttl,
+            proxied=proxied,
+        )
+        data = await handler.create_dns_record(zone_id, params)
         return _success(data)
     except cloudflare.NotFoundError:
         return _error(f"Zone {zone_id} 不存在")
@@ -157,7 +164,12 @@ async def update_dns_record(
     """
     handler = CloudflareHandler()
     try:
-        data = await handler.update_dns_record(zone_id, record_id, content, ttl, proxied)
+        params = UpdateDnsRecordParams(
+            content=content,
+            ttl=ttl,
+            proxied=proxied,
+        )
+        data = await handler.update_dns_record(zone_id, record_id, params)
         return _success(data)
     except cloudflare.NotFoundError:
         return _error(f"DNS 记录 {record_id} 不存在")

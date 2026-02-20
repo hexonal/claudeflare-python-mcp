@@ -108,8 +108,17 @@ class TestCloudflareHandler:
 
             from claudeflare_mcp.cf_handler import CloudflareHandler
 
+            from claudeflare_mcp.cf_handler import CreateDnsRecordParams
+
             handler = CloudflareHandler()
-            result = await handler.create_dns_record("zone-123", "A", "api.example.com", "5.6.7.8")
+            params = CreateDnsRecordParams(
+                record_type="A",
+                name="api.example.com",
+                content="5.6.7.8",
+                ttl=1,
+                proxied=False,
+            )
+            result = await handler.create_dns_record("zone-123", params)
 
         assert result["id"] == "rec-new"
         assert result["content"] == "5.6.7.8"
@@ -139,8 +148,15 @@ class TestCloudflareHandler:
 
             from claudeflare_mcp.cf_handler import CloudflareHandler
 
+            from claudeflare_mcp.cf_handler import UpdateDnsRecordParams
+
             handler = CloudflareHandler()
-            result = await handler.update_dns_record("zone-123", "rec-456", "9.9.9.9")
+            params = UpdateDnsRecordParams(
+                content="9.9.9.9",
+                ttl=1,
+                proxied=None,
+            )
+            result = await handler.update_dns_record("zone-123", "rec-456", params)
 
         assert result["id"] == "rec-456"
         assert result["content"] == "9.9.9.9"

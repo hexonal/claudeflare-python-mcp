@@ -5,7 +5,6 @@ Cloudflare MCP Server main entry point.
 """
 
 import sys
-import os
 
 
 def main() -> None:
