@@ -347,6 +347,9 @@ cython_debug/
 # uv 锁定文件（库/工具类项目不提交，应用类项目可提交）
 uv.lock
 
+# 测试目录（含真实域名、Account ID 等敏感测试数据，仅限本地使用）
+tests/
+
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
