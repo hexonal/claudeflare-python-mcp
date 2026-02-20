@@ -92,7 +92,9 @@ FastMCP 工具均使用 `AsyncCloudflare`，保持与框架的 async 一致性�
 
 | 变量 | 说明 | 必填 |
 |------|------|------|
-| `CF_API_TOKEN` | Cloudflare API Token（推荐，细粒度权限） | 是 |
+| `CF_API_KEY` | Cloudflare Global API Key（与 CF_API_EMAIL 配合使用） | 二选一 |
+| `CF_API_EMAIL` | Cloudflare 账户邮箱（与 CF_API_KEY 配合使用） | 二选一 |
+| `CF_API_TOKEN` | Cloudflare API Token（细粒度权限，与上两项互斥） | 二选一 |
 | `CF_ACCOUNT_ID` | Cloudflare 账户 ID | 按功能需要 |
 | `CF_ZONE_ID` | 默认操作的 Zone ID | 可选 |
 
@@ -158,13 +160,16 @@ warn_return_any = true
       "command": "uvx",
       "args": ["--from", "git+https://github.com/hexonal/claudeflare-python-mcp", "claudeflare-python-mcp"],
       "env": {
-        "CF_API_TOKEN": "<your-token>",
+        "CF_API_KEY": "<your-global-api-key>",
+        "CF_API_EMAIL": "<your-cloudflare-email>",
         "CF_ACCOUNT_ID": "<your-account-id>"
       }
     }
   }
 }
 ```
+
+> 也支持 API Token 认证：将 `CF_API_KEY` + `CF_API_EMAIL` 替换为单个 `CF_API_TOKEN`。
 
 ---
 

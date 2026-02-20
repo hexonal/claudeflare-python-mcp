@@ -341,6 +341,12 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# MCP 配置（含 API 密钥等敏感凭证，禁止上传）
+.mcp.json
+
+# uv 锁定文件（库/工具类项目不提交，应用类项目可提交）
+uv.lock
+
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
