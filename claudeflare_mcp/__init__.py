@@ -394,7 +394,11 @@ async def list_custom_hostnames(zone_id: str) -> str:
 
 
 @mcp.tool()
-async def create_custom_hostname(zone_id: str, hostname: str) -> str:
+async def create_custom_hostname(
+    zone_id: str,
+    hostname: str,
+    min_tls_version: str = "1.2",
+) -> str:
     """
     创建自定义主机名（使用 HTTP DV 证书）。
     Create a custom hostname (using HTTP DV certificate).
@@ -402,15 +406,61 @@ async def create_custom_hostname(zone_id: str, hostname: str) -> str:
     Args:
         zone_id: Zone ID
         hostname: 要添加的自定义主机名（如 app.partner.com）
+        min_tls_version: 最低 TLS 版本（1.0/1.1/1.2/1.3），默认 1.2
     """
     handler = CloudflareHandler()
     try:
-        data = await handler.create_custom_hostname(zone_id, hostname)
+        data = await handler.create_custom_hostname(zone_id, hostname, min_tls_version)
         return _success(data)
     except cloudflare.NotFoundError:
         return _error(f"Zone {zone_id} 不存在")
     except cloudflare.AuthenticationError:
         return _error("CF_API_TOKEN 无效")
+    except Exception as exc:
+        return _error(str(exc))
+
+
+@mcp.tool()
+async def update_custom_hostname(
+    zone_id: str,
+    custom_hostname_id: str,
+    min_tls_version: str = "1.2",
+) -> str:
+    """
+    更新自定义主机名的 SSL 设置。
+    Update SSL settings for a custom hostname.
+
+    Args:
+        zone_id: Zone ID
+        custom_hostname_id: 自定义主机名 ID，可通过 list_custom_hostnames 获取
+        min_tls_version: 最低 TLS 版本（1.0/1.1/1.2/1.3），默认 1.2
+    """
+    handler = CloudflareHandler()
+    try:
+        data = await handler.update_custom_hostname(zone_id, custom_hostname_id, min_tls_version)
+        return _success(data)
+    except cloudflare.NotFoundError:
+        return _error(f"Custom hostname {custom_hostname_id} 不存在")
+    except Exception as exc:
+        return _error(str(exc))
+
+
+@mcp.tool()
+async def delete_custom_hostname(zone_id: str, custom_hostname_id: str) -> str:
+    """
+    删除自定义主机名。
+    Delete a custom hostname.
+
+    Args:
+        zone_id: Zone ID
+        custom_hostname_id: 自定义主机名 ID，可通过 list_custom_hostnames 获取
+    """
+    handler = CloudflareHandler()
+    try:
+        result = await handler.delete_custom_hostname(zone_id, custom_hostname_id)
+        return _success({"deleted": result, "custom_hostname_id": custom_hostname_id})
+    except cloudflare.NotFoundError:
+        return _error(f"Custom hostname {custom_hostname_id} 不存在")
     except Exception as exc:
         return _error(str(exc))
 

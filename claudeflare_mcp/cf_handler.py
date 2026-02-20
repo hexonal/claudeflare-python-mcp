@@ -405,22 +405,72 @@ class CloudflareHandler:
                 for h in hostname_items
             ]
 
-    async def create_custom_hostname(self, zone_id: str, hostname: str) -> dict[str, object]:
+    async def create_custom_hostname(
+        self,
+        zone_id: str,
+        hostname: str,
+        min_tls_version: str = "1.2",
+    ) -> dict[str, object]:
         """
         创建自定义主机名（默认使用 HTTP DV 证书）。
         Create a custom hostname (defaults to HTTP DV certificate).
         """
+        ssl_config: dict[str, object] = {
+            "method": "http",
+            "type": "dv",
+            "settings": {"min_tls_version": min_tls_version},
+        }
         async with self._get_client() as client:
             result = await client.custom_hostnames.create(
                 zone_id=zone_id,
                 hostname=hostname,
-                ssl={"method": "http", "type": "dv"},
+                ssl=ssl_config,  # type: ignore[arg-type]
             )
             return {
                 "id": result.id,  # type: ignore[union-attr]
                 "hostname": result.hostname,  # type: ignore[union-attr]
                 "status": result.status,  # type: ignore[union-attr]
             }
+
+    async def update_custom_hostname(
+        self,
+        zone_id: str,
+        custom_hostname_id: str,
+        min_tls_version: str = "1.2",
+    ) -> dict[str, object]:
+        """
+        更新自定义主机名的 SSL 设置。
+        Update SSL settings for a custom hostname.
+        """
+        ssl_config: dict[str, object] = {
+            "method": "http",
+            "type": "dv",
+            "settings": {"min_tls_version": min_tls_version},
+        }
+        async with self._get_client() as client:
+            result = await client.custom_hostnames.edit(
+                custom_hostname_id,
+                zone_id=zone_id,
+                ssl=ssl_config,  # type: ignore[arg-type]
+            )
+            return {
+                "id": result.id,  # type: ignore[union-attr]
+                "hostname": result.hostname,  # type: ignore[union-attr]
+                "status": result.status,  # type: ignore[union-attr]
+            }
+
+    async def delete_custom_hostname(
+        self, zone_id: str, custom_hostname_id: str
+    ) -> bool:
+        """
+        删除自定义主机名。
+        Delete a custom hostname.
+        """
+        async with self._get_client() as client:
+            await client.custom_hostnames.delete(
+                custom_hostname_id, zone_id=zone_id
+            )
+            return True
 
     # ── Email Routing ─────────────────────────────────────────────────────────
 
