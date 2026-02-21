@@ -8,7 +8,8 @@ import json
 import cloudflare
 from fastmcp import FastMCP
 
-from .cf_handler import CloudflareHandler, CreateDnsRecordParams, UpdateDnsRecordParams
+from .cf_handler import CloudflareHandler
+from .cf_handler_base import CreateDnsRecordParams, UpdateDnsRecordParams
 
 mcp = FastMCP("Cloudflare MCP Server")
 

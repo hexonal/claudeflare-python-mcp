@@ -6,18 +6,10 @@ Workers, AI and Analytics related Cloudflare API methods mixin.
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING
 
 import httpx
 
-if TYPE_CHECKING:
-    import cloudflare
-
-# Cloudflare REST API 基础 URL
-_CF_API_BASE = "https://api.cloudflare.com/client/v4"
-
-# 类型别名
-type WorkerData = dict[str, object]
+from .cf_handler_base import CloudflareBase, WorkerData, _CF_API_BASE
 
 # Cloudflare GraphQL Analytics API 查询（最近 24 小时，按小时分组）
 _ANALYTICS_QUERY = """
@@ -44,22 +36,13 @@ query($zoneTag: String!, $start: Time!, $end: Time!) {
 """
 
 
-class WorkersMixin:
+class WorkersMixin(CloudflareBase):
     """
     Workers、AI 和 Analytics 操作 Mixin。
     Workers, AI and Analytics operations mixin.
-
-    需要宿主类实现 _get_client() 和 _get_auth_headers()。
-    Requires host class to implement _get_client() and _get_auth_headers().
     """
 
-    def _get_client(self) -> cloudflare.AsyncCloudflare:
-        raise NotImplementedError
-
-    def _get_auth_headers(self) -> dict[str, str]:
-        raise NotImplementedError
-
-    # ── Analytics ─────────────────────────────────────────────────────────────
+    # -- Analytics --
 
     async def get_zone_analytics(self, zone_id: str) -> dict[str, object]:
         """
@@ -123,7 +106,7 @@ class WorkersMixin:
             "pageviews": {"total": pv},
         }
 
-    # ── AI (Workers AI) ───────────────────────────────────────────────────────
+    # -- AI (Workers AI) --
 
     async def list_ai_models(self, account_id: str) -> list[dict[str, object]]:
         """
@@ -168,7 +151,7 @@ class WorkersMixin:
                 return {"response": str(result)}
             return result
 
-    # ── Workers ───────────────────────────────────────────────────────────────
+    # -- Workers --
 
     async def list_workers(self, account_id: str) -> list[WorkerData]:
         """

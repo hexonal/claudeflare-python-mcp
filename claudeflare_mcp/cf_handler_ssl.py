@@ -5,23 +5,14 @@ SSL/TLS and custom hostname related Cloudflare API methods mixin.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import cloudflare
+from .cf_handler_base import CloudflareBase
 
 
-class SslMixin:
+class SslMixin(CloudflareBase):
     """
     SSL/TLS 和自定义主机名操作 Mixin。
     SSL/TLS and custom hostname operations mixin.
-
-    需要宿主类实现 _get_client()。
-    Requires host class to implement _get_client().
     """
-
-    def _get_client(self) -> cloudflare.AsyncCloudflare:
-        raise NotImplementedError
 
     async def get_ssl_settings(self, zone_id: str) -> dict[str, object]:
         """

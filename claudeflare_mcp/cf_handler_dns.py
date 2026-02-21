@@ -5,34 +5,22 @@ DNS-related Cloudflare API methods mixin.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import httpx
 
-if TYPE_CHECKING:
-    import cloudflare
+from .cf_handler_base import (
+    CloudflareBase,
+    CreateDnsRecordParams,
+    DnsRecordData,
+    UpdateDnsRecordParams,
+    _CF_API_BASE,
+)
 
-# Cloudflare REST API 基础 URL
-_CF_API_BASE = "https://api.cloudflare.com/client/v4"
 
-# 类型别名
-type DnsRecordData = dict[str, object]
-
-
-class DnsMixin:
+class DnsMixin(CloudflareBase):
     """
     DNS 操作 Mixin，提供 DNS 记录和 DNSSEC 相关方法。
     DNS operations mixin providing DNS record and DNSSEC methods.
-
-    需要宿主类实现 _get_client() 和 _get_auth_headers()。
-    Requires host class to implement _get_client() and _get_auth_headers().
     """
-
-    def _get_client(self) -> cloudflare.AsyncCloudflare:
-        raise NotImplementedError
-
-    def _get_auth_headers(self) -> dict[str, str]:
-        raise NotImplementedError
 
     async def list_dns_records(self, zone_id: str) -> list[DnsRecordData]:
         """
@@ -61,7 +49,7 @@ class DnsMixin:
     async def create_dns_record(
         self,
         zone_id: str,
-        params: dict,
+        params: CreateDnsRecordParams,
     ) -> DnsRecordData:
         """
         创建 DNS 记录。
@@ -77,18 +65,18 @@ class DnsMixin:
                 proxied=params["proxied"],
             )
             return {
-                "id": record.id,
-                "type": record.type,
-                "name": record.name,
-                "content": record.content,
-                "proxied": record.proxied,
+                "id": record.id,  # type: ignore[union-attr]
+                "type": record.type,  # type: ignore[union-attr]
+                "name": record.name,  # type: ignore[union-attr]
+                "content": record.content,  # type: ignore[union-attr]
+                "proxied": record.proxied,  # type: ignore[union-attr]
             }
 
     async def update_dns_record(
         self,
         zone_id: str,
         record_id: str,
-        params: dict,
+        params: UpdateDnsRecordParams,
     ) -> DnsRecordData:
         """
         更新 DNS 记录内容（先获取现有记录保留 name/type，再 PATCH 更新）。
@@ -108,7 +96,7 @@ class DnsMixin:
                 type=existing.type,  # type: ignore[union-attr, arg-type]
                 content=params["content"],
                 ttl=params["ttl"],
-                proxied=effective_proxied,
+                proxied=effective_proxied,  # pyright: ignore[reportArgumentType]
             )
             return {
                 "id": record.id,  # type: ignore[union-attr]
